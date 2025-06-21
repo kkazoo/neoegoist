@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Lock Teams</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(90deg, #00d4ff, #0099cc, #007acc);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+            position: relative;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="30" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-bar {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(45deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 204, 0.2));
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            color: #00d4ff;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .page {
+            display: none;
+            padding: 40px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .teams-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .team-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .team-card:hover::before {
+            left: 100%;
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.5);
+        }
+
+        .team-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .team-info {
+            flex: 1;
+        }
+
+        .team-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            margin-bottom: 5px;
+        }
+
+        .team-stats {
+            font-size: 0.9rem;
+            color: #b3b3b3;
+        }
+
+        .team-description {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        .players-section h3 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .player {
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border-left: 4px solid #00d4ff;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .player:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .player-info {
+            font-size: 0.9rem;
+            color: #b3b3b3;
+            line-height: 1.4;
+        }
+
+        .player-role {
+            display: inline-block;
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        .star-player {
+            background: linear-gradient(45deg, rgba(255, 215, 0, 0.2), rgba(255, 193, 7, 0.1));
+            border-left-color: #ffd700;
+        }
+
+        .star-player:hover {
+            background: linear-gradient(45deg, rgba(255, 215, 0, 0.3), rgba(255, 193, 7, 0.2));
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .star-player .player-name {
+            color: #ffd700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+        }
+
+        .star-player .player-name::after {
+            content: ' ⭐';
+            font-size: 0.8rem;
+        }
+
+        .team-strengths, .team-style {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .team-strengths h4, .team-style h4 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .strengths-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .strength-tag {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: #000;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            transform: translateY(-2px);
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-ball {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #00d4ff);
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .teams-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .team-card {
+                padding: 20px;
+            }
+            
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-buttons {
+                gap: 10px;
+            }
+            
+            .nav-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements">
+        <div class="floating-ball" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="floating-ball" style="left: 30%; animation-delay: 5s;"></div>
+        <div class="floating-ball" style="left: 50%; animation-delay: 10s;"></div>
+        <div class="floating-ball" style="left: 70%; animation-delay: 15s;"></div>
+        <div class="floating-ball" style="left: 90%; animation-delay: 8s;"></div>
+    </div>
+
+    <div class="header">
+        <h1>BLUE LOCK</h1>
+        <p>Neo Egoist League Teams</p>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showPage('overview')">Overview</button>
+            <button class="nav-btn" onclick="showTeamPage('bastard-munchen')">Bastard München</button>
+            <button class="nav-btn" onclick="showTeamPage('fc-barcha')">FC Barcha</button>
+            <button class="nav-btn" onclick="showTeamPage('pxg')">PXG</button>
+            <button class="nav-btn" onclick="showTeamPage('ubers')">Ubers</button>
+            <button class="nav-btn" onclick="showTeamPage('manshine-city')">Manshine City</button>
+        </div>
+    </div>
+
+    <!-- Overview Page -->
+    <div id="overview" class="page active">
+        <div class="teams-container">
+            <div class="team-card" onclick="showTeamPage('bastard-munchen')">
+                <div class="team-header">
+                    <div class="team-logo">BM</div>
+                    <div class="team-info">
+                        <div class="team-name">Bastard München</div>
+                        <div class="team-stats">9 Players • German Powerhouse</div>
+                    </div>
+                </div>
+                <div class="team-description">
+                    The German engineering meets Japanese innovation. Known for their tactical precision and explosive offensive plays, anchored by rising star Isagi Yoichi.
+                </div>
+            </div>
+
+            <div class="team-card" onclick="showTeamPage('fc-barcha')">
+                <div class="team-header">
+                    <div class="team-logo">FC</div>
+                    <div class="team-info">
+                        <div class="team-name">FC Barcha</div>
+                        <div class="team-stats">10 Players • Creative Chaos</div>
+                    </div>
+                </div>
+                <div class="team-description">
+                    Pure artistry in motion. This team thrives on creativity, unpredictability, and the sheer joy of football, led by the charismatic Meguru Bachira.
+                </div>
+            </div>
+
+            <div class="team-card" onclick="showTeamPage('pxg')">
+                <div class="team-header">
+                    <div class="team-logo">PXG</div>
+                    <div class="team-info">
+                        <div class="team-name">PXG (Paris X Gen)</div>
+                        <div class="team-stats">9 Players • Elite Franchise</div>
+                    </div>
+                </div>
+                <div class="team-description">
+                    The star-studded lineup featuring some of the most talented players. Rin Itoshi leads this collection of prodigies with ruthless efficiency.
+                </div>
+            </div>
+
+            <div class="team-card" onclick="showTeamPage('ubers')">
+                <div class="team-header">
+                    <div class="team-logo">UB</div>
+                    <div class="team-info">
+                        <div class="team-name">Ubers</div>
+                        <div class="team-stats">9 Players • Iron Wall Defense</div>
+                    </div>
+                </div>
+                <div class="team-description">
+                    Built around the legendary "Iron Wall" defense. This team combines veteran experience with young talent, creating an impenetrable fortress.
+                </div>
+            </div>
+
+            <div class="team-card" onclick="showTeamPage('manshine-city')">
+                <div class="team-header">
+                    <div class="team-logo">MC</div>
+                    <div class="team-info">
+                        <div class="team-name">Manshine City</div>
+                        <div class="team-stats">8 Players • Speed & Precision</div>
+                    </div>
+                </div>
+                <div class="team-description">
+                    Lightning-fast attacks and clinical finishing. This team specializes in counter-attacks and pace, with Hyoma Chigiri leading the charge.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Individual Team Pages -->
+    <div id="bastard-munchen" class="page">
+        <button class="back-btn" onclick="showPage('overview')">← Back to Overview</button>
+        
+        <div class="team-header">
+            <div class="team-logo" style="width: 80px; height: 80px; font-size: 1.5rem;">BM</div>
+            <div class="team-info">
+                <div class="team-name" style="font-size: 2.5rem;">Bastard München</div>
+                <div class="team-stats" style="font-size: 1.1rem;">German Engineering • 9 Players</div>
+            </div>
+        </div>
+
+        <div class="team-description">
+            Bastard München represents the perfect fusion of German tactical discipline and Japanese technical innovation. This team is built around creating the ultimate striker, with each player contributing to a system designed to maximize offensive potential while maintaining defensive stability.
+        </div>
+
+        <div class="team-style">
+            <h4>🎯 Playing Style</h4>
+            <p>High-intensity pressing, quick transitions, and clinical finishing. The team focuses on creating space through coordinated movement and exploiting defensive weaknesses with precision passing and timing.</p>
+        </div>
+
+        <div class="team-strengths">
+            <h4>💪 Team Strengths</h4>
+            <div class="strengths-list">
+                <span class="strength-tag">Tactical Awareness</span>
+                <span class="strength-tag">Goal Scoring</span>
+                <span class="strength-tag">Team Chemistry</span>
+                <span class="strength-tag">Adaptability</span>
+                <span class="strength-tag">Mental Fortitude</span>
+            </div>
+        </div>
+
+        <div class="players-section">
+            <h3>⭐ Squad Roster</h3>
+            <div class="players-grid">
+                <div class="player star-player">
+                    <div class="player-name">Isagi Yoichi</div>
+                    <div class="player-info">The protagonist and main striker. Known for his spatial awareness and ability to adapt his play style during matches.</div>
+                    <div class="player-role">Main Striker</div>
+                </div>
+                <div class="player">
+                    <div class="player-name">Hiori Yo</div>
+                    <div class="player-info">Talented midfielder with excellent ball control and vision. Provides creative support to the attack.</div>
+                    <div class="player-role">Midfielder</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Kurona Ranze</div>
+                    <div class="player-info">Versatile player known for his shark-like instincts and ability to create opportunities.</div>
+                    <div class="player-role">Forward</div>
+                </div>
+                <div class="player">
+                    <div class="player-name">Gagamaru Gin</div>
+                    <div class="player-info">Exceptional goalkeeper with incredible reflexes and acrobatic saves.</div>
+                    <div class="player-role">Goalkeeper</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Kenyu Yukimiya</div>
+                    <div class="player-info">Technical winger with precise shooting and excellent crossing ability.</div>
+                    <div class="player-role">Winger</div>
+                </div>
+                <div class="player">
+                    <div class="player-name">Gurimu Igarashi</div>
+                    <div class="player-info">Solid squad player who brings energy and work rate to the team.</div>
+                    <div class="player-role">Utility</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Tabito Karasu</div>
+                    <div class="player-info">Intelligent player with excellent game reading ability and tactical understanding.</div>
+                    <div class="player-role">Midfielder</div>
+                </div>
+                <div class="player">
+                    <div class="player-name">Akira Endoji</div>
+                    <div class="player-info">Part of Ananse's old team; Tsunzaki's fodder friend. Provides depth to the squad.</div>
+                    <div class="player-role">Squad Player</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Taiga Tsunzaki</div>
+                    <div class="player-info">Part of Nanase's old team; considered fodder but has potential for growth.</div>
+                    <div class="player-role">Development Player</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fc-barcha" class="page">
+        <button class="back-btn" onclick="showPage('overview')">← Back to Overview</button>
+        
+        <div class="team-header">
+            <div class="team-logo" style="width: 80px; height: 80px; font-size: 1.5rem;">FC</div>
+            <div class="team-info">
+                <div class="team-name" style="font-size: 2.5rem;">FC Barcha</div>
+                <div class="team-stats" style="font-size: 1.1rem;">Creative Football • 10 Players</div>
+            </div>
+        </div>
+
+        <div class="team-description">
+            FC Barcha embodies the beautiful game in its purest form. This team prioritizes creativity, flair, and artistic expression on the pitch. They believe that football should be entertaining and unpredictable, with each player bringing their unique style to create magical moments.
+        </div>
+
+        <div class="team-style">
+            <h4>🎨 Playing Style</h4>
+            <p>Free-flowing, creative football with emphasis on individual brilliance and improvisation. The team encourages players to express themselves and create moments of magic through skill and imagination.</p>
+        </div>
+
+        <div class="team-strengths">
+            <h4>💪 Team Strengths</h4>
+            <div class="strengths-list">
+                <span class="strength-tag">Creativity</span>
+                <span class="strength-tag">Technical Skills</span>
+                <span class="strength-tag">Unpredictability</span>
+                <span class="strength-tag">Individual Brilliance</span>
+                <span class="strength-tag">Entertainment Value</span>
+            </div>
+        </div>
+
+        <div class="players-section">
+            <h3>🎭 Squad Roster</h3>
+            <div class="players-grid">
+                <div class="player">
+                    <div class="player-name">Meguru Bachira</div>
+                    <div class="player-info">The creative genius who plays with pure instinct and joy. Known for his unpredictable movements and "monster" within.</div>
+                    <div class="player-role">Creative Midfielder</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Eita Otoya</div>
+                    <div class="player-info">Skillful winger with excellent dribbling and the ability to create chances from nothing.</div>
+                    <div class="player-role">Winger</div>
+                </div>
+                <div class="player">
+                    <div class="player-name">Nagi Seishiro</div>
+                    <div class="player-info">Naturally gifted player with incredible ball control and finishing ability.</div>
+                    <div class="player-role">Forward</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Kiyora Jin</div>
+                    <div class="player-info">Technical player who brings finesse and precision to the team's attacking play.</div>
+                    <div class="player-role">Attacking Midfielder</div>
+                </div>
+                <div class="player">
+                    <div class="player-name">Aoshi Tokimitsu</div>
+                    <div class="player-info">Powerful player who adds physicality and strength to complement the team's technical players.</div>
+                    <div class="player-role">Midfielder</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Aiki Himuzu</div>
+                    <div class="player-info">Decent player; part of Karasu and Otoya's team during Second Selection. Brings tactical awareness.</div>
+                    <div class="player-role">Midfielder</div>
+                </div>
+                <div class="player">
+                    <div class="player-name">Haru Hayate</div>
+                    <div class="player-info">Former U-20 Defensive Midfielder with experience and leadership qualities.</div>
+                    <div class="player-role">Defensive Midfielder</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Shizuka Haiji</div>
+                    <div class="player-info">Has a cool haircut; friends with Hiiragi. Brings style and personality to the team.</div>
+                    <div class="player-role">Utility Player</div>
+                </div>
+                <div class="player">
+                    <div class="player-name">Tetsu Sokura</div>
+                    <div class="player-info">Squad depth player who provides backup options across multiple positions.</div>
+                    <div class="player-role">Squad Player</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Haruhiko Yuzu</div>
+                    <div class="player-info">Development player with potential to grow within the team's creative system.</div>
+                    <div class="player-role">Development Player</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pxg" class="page">
+        <button class="back-btn" onclick="showPage('overview')">← Back to Overview</button>
+        
+        <div class="team-header">
+            <div class="team-logo" style="width: 80px; height: 80px; font-size: 1.5rem;">PXG</div>
+            <div class="team-info">
+                <div class="team-name" style="font-size: 2.5rem;">PXG (Paris X Gen)</div>
+                <div class="team-stats" style="font-size: 1.1rem;">Elite Franchise • 9 Players</div>
+            </div>
+        </div>
+
+        <div class="team-description">
+            PXG represents the pinnacle of modern football franchising. This star-studded team brings together some of the most talented individuals in the league, combining raw talent with strategic gameplay. They operate like a collection of superstars who must learn to work together.
+        </div>
+
+        <div class="team-style">
+            <h4>⚡ Playing Style</h4>
+            <p>Individual brilliance within a structured system. The team relies on the exceptional abilities of key players while maintaining tactical discipline and clinical execution.</p>
+        </div>
+
+        <div class="team-strengths">
+            <h4>💪 Team Strengths</h4>
+            <div class="strengths-list">
+                <span class="strength-tag">Star Power</span>
+                <span class="strength-tag">Individual Talent</span>
+                <span class="strength-tag">Clinical Finishing</span>
+                <span class="strength-tag">Mental Strength</span>
+                <span class="strength-tag">Championship Experience</span>
+            </div>
+        </div>
+
+        <div class="players-section">
+            <h3>🌟 Squad Roster</h3>
+            <div class="players-grid">
+                <div class="player">
+                    <div class="player-name">Rin Itoshi</div>
+                    <div class="player-info">The team's ace striker with incredible technical ability and a ruthless winning mentality.</div>
+                    <div class="player-role">Star Striker</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Nijiro Nanase</div>
+                    <div class="player-info">Versatile player who brings balance and tactical awareness to the team.</div>
+                    <div class="player-role">Midfielder</div>
+                </div>
+                <div class="player">
+                    <div class="player-name">Reo Mikage</div>
+                    <div class="player-info">Wealthy prodigy with excellent all-around abilities and leadership qualities.</div>
+                    <div class="player-role">Playmaker</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Shidou Ryusei</div>
+                    <div class="player-info">Explosive and unpredictable striker with incredible goal-scoring instinct.</div>
+                    <div class="player-role">Striker</div>
+                </div>
+                <div class="player">
+                    <div class="player-name">Teru Kitsunezato</div>
+                    <div class="player-info">Former U-20 Forward with experience at the highest level of youth football.</div>
+                    <div class="player-role">Forward</div>
+                </div>
+                <div class="player star-player">
+                    <div class="player-name">Kento Cho</div>
+                    <div class="player-info">Former U-20 Forward; has synergy with K
